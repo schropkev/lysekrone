@@ -28,10 +28,12 @@ The LD_PRELOAD library uses groups of destinations that will use their own `xsoc
 
 The syntax is:
 
+```
 LD_PRELOAD="./buid/liblysekrone.so" LK_BIND_MAP="(destination1,destination2 /path/to/xsocket/socket),(destination3,destination4 @xsocket-abstract-socket)" \
    LK_CONN_MAP="(destination1,destination2 /path/to/xsocket/socket),(destination3,destination4 @xsocket-abstract-socket)"
+```
 
-LK_BIND_MAP is meant for binding connections by intercepting `bind()` syscall (incoming connections) and LK_CONN_MAP is meant for intercepting `connect()/sendto()/sendmsg()/sendmmsg` (outgoing connections).
+`LK_BIND_MAP` is meant for binding connections by intercepting `bind()` syscall (incoming connections) and `LK_CONN_MAP` is meant for intercepting `connect()/sendto()/sendmsg()/sendmmsg` (outgoing connections).
 
 A destination can be:
 
