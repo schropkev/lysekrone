@@ -1,0 +1,92 @@
+24,28c24,32
+< 	install_data('xsocket.service',
+< 		install_dir: systemd.get_variable(pkgconfig: 'systemd_system_unit_dir'))
+< 
+< 	install_data('xsocket.sysusers',
+< 		install_dir: systemd.get_variable(pkgconfig: 'sysusers_dir'),
+---
+> 	install_data(
+> 		'xsocket.service',
+> 		install_dir: systemd.get_variable(
+> 			pkgconfig: 'systemd_system_unit_dir'))
+> 
+> 	install_data(
+> 		'xsocket.sysusers',
+> 		install_dir: systemd.get_variable(
+> 			pkgconfig: 'sysusers_dir'),
+33c37,40
+< 	add_project_arguments('-DXSOCKET_SYSTEMD', '-DSD_JOURNAL_SUPPRESS_LOCATION', language: 'c')
+---
+> 	add_project_arguments(
+> 		'-DXSOCKET_SYSTEMD',
+> 		'-DSD_JOURNAL_SUPPRESS_LOCATION',
+> 		language: 'c')
+38,40c45,56
+< 	'cleanup.c',
+< 	'socket.c',
+< 	'protocol.c',
+---
+> 	[
+> 		'cleanup.c',
+> 		'socket.c',
+> 		'protocol.c'
+> 	],
+> 	gnu_symbol_visibility: 'hidden')
+> 
+> xsocket_switch = static_library(
+> 	'xsocket_switch',
+> 	[
+> 		'switch.c'
+> 	],
+45c61,63
+< 	'xsocket.c',
+---
+> 	[
+> 		'xsocket.c'
+> 	],
+47c65,67
+< 	link_with: xsocket_common,
+---
+> 	link_with: [
+> 		xsocket_common
+> 	],
+52,53c72,87
+< 	'hook.c',
+< 	'switch.c',
+---
+> 	[
+> 		'hook.c'
+> 	],
+> 	gnu_symbol_visibility: 'hidden',
+> 	link_with: [
+> 		xsocket_common,
+> 		xsocket_switch,
+> 		xsocket_library
+> 	],
+> 	install: true)
+> 
+> shared_library(
+> 	'lysekrone',
+> 	[
+> 		'lysekrone.c'
+> 	],
+55c89,93
+< 	link_with: [xsocket_common, xsocket_library],
+---
+> 	link_with: [
+> 		xsocket_common,
+> 		xsocket_switch,
+> 		xsocket_library
+> 	],
+60c98,100
+< 	'server.c',
+---
+> 	[
+> 		'server.c'
+> 	],
+63c103,105
+< 	link_with: xsocket_common,
+---
+> 	link_with: [
+> 		xsocket_common
+> 	],
