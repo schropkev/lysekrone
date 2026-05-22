@@ -1,6 +1,6 @@
 # `lysekrone`: LD_PRELOAD client library for xsocket.
 
-`xsocket` is a LD_PRELOAD client library for xsocket, it differs from original `libxbind.so` for being more sophisticated and by having ability to handle outgoing connections
+`lysekrone` is a LD_PRELOAD client library for xsocket, it differs from original `libxbind.so` for being more sophisticated and by having ability to handle outgoing connections
 
 ## Build
 
