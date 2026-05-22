@@ -111,7 +111,11 @@ struct lk_socket_state
 {
         bool used;
 
+        bool redirected;
+
         int fd;
+
+        char server[108];
 
         struct lk_sockopt opts[LK_MAX_SOCKOPTS];
         size_t nopts;
@@ -132,7 +136,13 @@ static pthread_mutex_t lk_state_lock =
 
 static struct lk_socket_state lk_states[1024];
 
-static bool lk_parse_map(const char* text, struct lk_map* map);
+static bool lk_parse_map(
+        const char* text,
+        struct lk_map* map);
+
+static struct lk_socket_state*
+lk_get_socket_state(int fd);
+
 static bool lk_parse_group(
         const char* text,
         struct lk_group* group);
@@ -165,6 +175,33 @@ static void lk_copy_socket_opts(
         int oldfd,
         int newfd);
 
+static bool lk_socket_redirected(
+        int fd,
+        const char* server)
+{
+
+
+        bool redirected = false;
+
+        pthread_mutex_lock(
+                &lk_state_lock);
+
+        struct lk_socket_state* state =
+                lk_get_socket_state(fd);
+
+        if (state &&
+            state->redirected &&
+            !strcmp(state->server, server))
+        {
+                redirected = true;
+        }
+
+        pthread_mutex_unlock(
+                &lk_state_lock);
+
+        return redirected;
+}
+
 static struct lk_socket_state*
 lk_get_socket_state(int fd)
 {
@@ -186,8 +223,10 @@ lk_get_socket_state(int fd)
                 if (!lk_states[i].used)
                 {
                         lk_states[i].used = true;
+                        lk_states[i].redirected = false;
                         lk_states[i].fd = fd;
                         lk_states[i].nopts = 0;
+                        lk_states[i].server[0] = 0;
 
                         return &lk_states[i];
                 }
@@ -790,6 +829,9 @@ static bool lk_redirect_socket(
         int fd,
         const char* server)
 {
+	    if (lk_socket_redirected(fd, server))
+            return true;
+
         int domain;
         int type;
         int protocol;
@@ -835,6 +877,25 @@ static bool lk_redirect_socket(
 
         if (!switcheroo(fd, newfd))
                 return false;
+
+        pthread_mutex_lock(
+                &lk_state_lock);
+
+        struct lk_socket_state* state =
+                lk_get_socket_state(fd);
+
+        if (state)
+        {
+                state->redirected = true;
+
+                strlcpy(
+                        state->server,
+                        server,
+                        sizeof(state->server));
+        }
+
+        pthread_mutex_unlock(
+                &lk_state_lock);
 
         close_p(&newfd);
 

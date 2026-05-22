@@ -33,7 +33,7 @@ LD_PRELOAD="./buid/liblysekrone.so" LK_BIND_MAP="(destination1,destination2 /pat
    LK_CONN_MAP="(destination1,destination2 /path/to/xsocket/socket),(destination3,destination4 @xsocket-abstract-socket)"
 ```
 
-`LK_BIND_MAP` is meant for binding connections by intercepting `bind()` syscall (incoming connections) and `LK_CONN_MAP` is meant for intercepting `connect()/sendto()/sendmsg()/sendmmsg` (outgoing connections).
+`LK_BIND_MAP` is meant for binding connections by intercepting `bind()` syscall (incoming connections) and `LK_CONN_MAP` is meant for intercepting `connect()/sendto()/sendmsg()/sendmmsg()` (outgoing connections).
 
 A destination can be:
 
@@ -58,7 +58,7 @@ There is a global wildcard meaning matching all connections, but the destination
 
 It works just like `libxbind.so` except that you can specify destination connecting with `LK_CONN_MAP`.
 
-The `libxbind.so` library works by intercepting `bind()` (LK_BIND_MAP) or `connect()/sendto()/sendmsg()/sendmmsg` (LK_CONN_MAP) syscalls, creating a new socket of the same domain, type and protocol as the original, copying all known socket options, and then duplicating it over the original file descriptor. Special care is taken that the non-blocking and close-on-exec flags of the original socket are preserved.
+The `libxbind.so` library works by intercepting `bind()` (LK_BIND_MAP) or `connect()/sendto()/sendmsg()/sendmmsg()` (LK_CONN_MAP) syscalls, creating a new socket of the same domain, type and protocol as the original, copying all known socket options, and then duplicating it over the original file descriptor. Special care is taken that the non-blocking and close-on-exec flags of the original socket are preserved.
 
 All calls to `setsockopt` are also tracked to keep track of which socket options have been used, in order to minimize the amount of blind copying of socket options.
 
