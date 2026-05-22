@@ -4,7 +4,7 @@
 
 ## Build
 
-This project uses [Meson](https://mesonbuild.com/), the build files are provided by `xsocket` itself.
+This project uses [Meson](https://mesonbuild.com/), the build files are provided by `xsocket` itself. You will also have to install `patch`, `git`, standard C compilation tools and `libc6-dev` (on other systems, `glibc-devel`).
 
 ```
 git clone https://github.com/koro666/xsocket
@@ -56,7 +56,7 @@ There is a global wildcard meaning matching all connections, but the destination
 
 ## How it Works
 
-It works just like `libxbind.so`.
+It works just like `libxbind.so` except that you can specify destination connecting with `LK_CONN_MAP`.
 
 The `libxbind.so` library works by intercepting `bind()` (LK_BIND_MAP) or `connect()/sendto()/sendmsg()/sendmmsg` (LK_CONN_MAP) syscalls, creating a new socket of the same domain, type and protocol as the original, copying all known socket options, and then duplicating it over the original file descriptor. Special care is taken that the non-blocking and close-on-exec flags of the original socket are preserved.
 
@@ -64,7 +64,7 @@ All calls to `setsockopt` are also tracked to keep track of which socket options
 
 --------------------
 
-`xsocket` tools (`xsocket-server` and `libxbind`) work with network namespaces as it is intended, but also with [VRFs](https://docs.kernel.org/networking/vrf.html), containers (such as `LXC` and `Docker`), sandboxes (such as `Firejail` and `Bubblewrap`) and even `cgroups` (assuming the sockets opened by `xsocket-server` will be marked or handled in another way by kernel's `Netfilter`.
+`xsocket` tools (`xsocket-server` and `libxbind`) as well as `lysekrone` work with network namespaces as it is intended, but also with [VRFs](https://docs.kernel.org/networking/vrf.html), containers (such as `LXC` and `Docker`), sandboxes (such as `Firejail` and `Bubblewrap`) and even `cgroups` (assuming the sockets opened by `xsocket-server` will be marked or handled in another way by kernel's `Netfilter`.
 
 If the VRF interface is in the same network namespace (usually the host) as of the program to be tricked with `libxbind` or `lysekrone`, just using an abstract Unix socket is enough as AF_UNIX sockets are not bound to the `VRF` itself. If the VRF is inside a other network namespace than the `libxbind` or `lysekrone`, Unix sockets files should be used instead of abstract ones.
 
@@ -74,10 +74,14 @@ For sandboxes, any folder can be used assuming it's writable and accessible by t
 
 It is possible also to mark `xsocket-server` sockets with firewall marks by using [this script](https://github.com/zhangyoufu/fwmark). Just run `xsocket-server` as an unprivileged user using this script and `sudo`, all the listening points and outgoing connections will follow the firewall mark specified in the script without needing elevated privileges such as `CAP_NET_ADMIN` (needed for SO_MARK).
 
-`./fwmark.py 123 sudo -u someuser xsocket-server @xs-socket`
+`sudo ./fwmark.py 123 sudo -u someuser xsocket-server @xs-socket`
 
 --------------------
 
 ## Thanks
 
 - [@koro666](https://github.com/koro666) for his awesome project [xsocket](https://github.com/koro666/xsocket).
+
+--------------------
+
+Created on May 21, 2026.
