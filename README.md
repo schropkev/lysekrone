@@ -39,8 +39,8 @@ A destination can be:
 
 - IPv4/IPv6 addresses with normal ports, such as `127.0.0.1:1234` and `[::1]:1234`. IPv6 addresses must be `[bracketed]`.
 - IPv4/IPv6 addresses with port ranges, such as `127.0.0.1:12345-20000` and `[::1]:12345-20000`..
-- IPv4/IPv6 addresses with port wildcards (meaning matching every port in the address), such as `10.0.0.1:*` and `[fc00::1]:*`..
-- IPv4 CIDRs, such as `192.168.1.0/24.
+- IPv4/IPv6 addresses with port wildcards (meaning matching every port in the address), such as `10.0.0.1:*` and `[fc00::1]:*`.
+- IPv4 CIDRs, such as `192.168.1.0/24`.
 - IPv6 scopes, such as `2001:db8::/32` (these should not be bracketed).
 - IPv6 link-local addresses with network interface suffixes plus a port, port range or a port wildcard, such as `[fe80::1%eth0]:1234`, `[fe80::1%eth1]:12345-20000` or `[fe80::1%eth0]:*`.
 - A negation (#) of all above schemes, such as `#127.0.0.1:4321` and `#[::1]:4321`. A negation means that the destination will not be handled by the library.
@@ -64,13 +64,13 @@ All calls to `setsockopt` are also tracked to keep track of which socket options
 
 --------------------
 
-`xsocket` tools (`xsocket-server` and `libxbind`) as well as `lysekrone` work with network namespaces as they are intended, but they also works with [VRFs](https://docs.kernel.org/networking/vrf.html), containers (such as `LXC` and `Docker`), sandboxes (such as `Firejail` and `Bubblewrap`) and even `cgroups` (assuming the sockets opened by `xsocket-server` will be marked or handled in some way by kernel's `Netfilter`).
+`xsocket` tools ( `xsocket-server` and `libxbind`) as well as `lysekrone` work with network namespaces as they are intended, but they also works with [VRFs](https://docs.kernel.org/networking/vrf.html), containers (such as `LXC` and `Docker`), sandboxes (such as `Firejail` and `Bubblewrap`) and even `cgroups` (assuming the sockets opened by `xsocket-server` will be marked or handled in some way by kernel's `Netfilter`).
 
-If the VRF interface is in the same network namespace (usually the host) as of the program to be tricked with `libxbind` or `liblysekrone`, just using an abstract Unix socket is enough as AF_UNIX sockets are not bound to the `VRF` themselves. If the VRF is inside a other network namespace than the `libxbind` or `liblysekrone`, Unix sockets files should be used instead of abstract ones.
+If the VRF interface is in the same network namespace (usually the host) as of the program to be tricked with `libxbind.so` or `liblysekrone.so`, just using an abstract Unix socket is enough as AF_UNIX sockets are not bound to the `VRF` themselves. If the VRF is inside a other network namespace than the `libxbind.so` or `liblysekrone.so`, Unix sockets files should be used instead of abstract ones.
 
 For containers which support bind mounts, an user for running `xsocket-server` can be added with certain UID and another same user with same UID can be created inside the container; correct permissions (chmod 0700 is enough) must be set in the host side on shared folder; so another users inside the host system and container itself cannot sniff the `xsocket-server` Unix socket file; of course, root always can. Another way is creating an user for `xsocket-server` with certain UID and restricting the permissions of folder that will have the Unix socket to user itself (chmod 0700), and also in the host side, modify the ACL of the folder allowing the specific UID inside the container unprivileged user UID to see and write to Unix socket file.
 
-For sandboxes, any folder can be used assuming it's writable and accessible by the user that `libxbind` / `liblysekrone` will send the messages to `xsocket-server` inside the sandbox; permissions, ownership's and ACL can play a nice role in this case.
+For sandboxes, any folder can be used assuming it's writable and accessible by the user that `libxbind.so` / `liblysekrone.so` will send the messages to `xsocket-server` inside the sandbox; permissions, ownership's and ACL can play a nice role in this case.
 
 It is possible also to mark `xsocket-server` sockets with firewall marks by using [this script](https://github.com/zhangyoufu/fwmark). Just run `xsocket-server` as an unprivileged user using this script by using `sudo`; all the listening points and outgoing connections will follow the firewall mark specified in the script without needing elevated privileges such as `CAP_NET_ADMIN` (needed for `SO_MARK`).
 
